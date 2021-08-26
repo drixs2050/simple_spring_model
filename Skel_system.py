@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import Optional
 import autograd.numpy as np
+import numpy
 import scipy.optimize as sci_opt
 import matplotlib.pyplot as plt
-import torch
-import torch.optim as optim
+
+
 
 def v_spring_angle(b: float, c: float, theta: float, l0: float, stiffness: float):
 	# AC = C - A
@@ -158,8 +159,6 @@ class SnakeSkel:
 		return ang_vels
 
 
-
-
 if __name__ == "__main__":
 	# strech sample
 	# pos = np.array([[0, 0, 0],
@@ -174,6 +173,7 @@ if __name__ == "__main__":
 	# 				[np.cos(np.deg2rad(60)), -np.sin(np.deg2rad(60))*3, 0]])
 
 	# shrunk sample
+
 	pos = np.array([[0, 0, 0],
 					[np.cos(np.deg2rad(15)), 0, 0],
 					[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15)), 0],
@@ -200,42 +200,35 @@ if __name__ == "__main__":
 		new_skel.con = connections[(i-1)//2]
 		curr_skel = new_skel
 		i -= 2
-
+	t = []
+	pos = []
+	ang_vels = []
 	snake = SnakeSkel(curr_skel, 0.01)
 	snake.set_all_angles()
 	diff = float('inf')
 	# snake.set_all_pos()
-	visualize(np.array(snake.get_all_pos()), snake.t, write=True)
-	while diff > 1e-8:
+	start_pos = np.array(snake.get_all_pos())
+	start_pos = start_pos.reshape(start_pos.size, )
+	visualize(start_pos, snake.t, write=True)
+	t.append([snake.t])
+	pos.append(start_pos)
+	ang_vels.append(ang_vel.copy())
+
+	while diff > 1e-4:
 		new_ang_vel = snake.update()
 		diff = np.linalg.norm(new_ang_vel-ang_vel)
+		new_pos = np.array(snake.get_all_pos())
+		new_pos = new_pos.reshape(start_pos.size, )
 		if round(snake.t * 100) % 10 == 0:
 			snake.set_all_pos()
-			new_pos = snake.get_all_pos()
-			visualize(np.array(new_pos), snake.t, write=True)
+			visualize(new_pos, snake.t, write=True)
+		t.append([snake.t])
+		pos.append(new_pos)
+		ang_vels.append(new_ang_vel.copy())
 			# print((snake.t, new_ang_vel))
 			# print(new_pos)
-	# visualize(P.T @ q + x0, t, write=True)
-	# torch.manual_seed(42)
-	# device = torch.device('cuda:1')
-	# torch.cuda.device(1)
-	# print(torch.cuda.is_available())
-	# print(torch.cuda.current_device())
-	# print(torch.cuda.get_device_name(1))
-	# num_epoch = 100000
-	# data_tensor = torch.Tensor(data).reshape(len(data), 1).to(device).float()
-	# label_tensor = torch.Tensor(label).to(device).float()
-	# model = AngleTrajNet(label_tensor.shape[1] // 2).to(device)
-	# optimizer = optim.Adam(model.parameters(), lr=0.002)
-	# loss_function = my_MSEloss
-	# for epoch in range(num_epoch):
-	# 	pred = model(data_tensor)
-	# 	loss = loss_function(pred, label_tensor)
-	# 	optimizer.zero_grad()
-	# 	if epoch % 10 == 0:
-	# 		print('loss: {}'.format(loss))
-	# 	loss.backward()
-	# 	optimizer.step()
-
-
+		t_array = np.array(t)
+		pos_array = np.array(pos)
+		ang_vels_array = np.array(ang_vels)
+		np.savetxt("dataset/pos.csv", np.hstack((t_array, pos_array)), delimiter=",")
 

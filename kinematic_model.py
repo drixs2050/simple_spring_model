@@ -1,11 +1,9 @@
 import numpy as np
-
 from trajectory_model import *
-
 from spring_model import *
 from autograd import grad
 from Skel_system import *
-
+# this file is for purely test purpose
 
 dv_spring_angle = grad(v_spring_angle, 2)
 
@@ -77,15 +75,6 @@ def visualize(mass_loc, t, write=False):
 	else:
 		fig.show()
 
-
-def integrator(new_theta_dot: float, theta_dot: float, b: float, c: float, theta: float, l0: float, stiffness: float,
-			   h: float):
-	return 0.5 * (new_theta_dot - theta_dot) * (new_theta_dot - theta_dot) + \
-		   v_spring_angle(b, c, theta + h * new_theta_dot, l0, stiffness)
-
-
-def my_MSEloss(a, b):
-	return torch.mean((a.squeeze() - b.squeeze())**2)
 
 
 if __name__ == "__main__":
