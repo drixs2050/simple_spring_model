@@ -1,5 +1,5 @@
-
 import torch.nn as nn
+# models for modeling knots position and angular  velocity
 
 
 class TrajModNetwork(nn.Module):

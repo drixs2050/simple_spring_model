@@ -4,6 +4,8 @@ import torch
 from spring_model import *
 from trajectory_model import *
 import torch.optim as optim
+# unfortunately this method did not work for our required simulation
+# I suspect that assuming skeleton are stiff springs does not really fit here
 
 
 dt = 0.01

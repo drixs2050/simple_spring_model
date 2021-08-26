@@ -1,6 +1,8 @@
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 from spring_model import *
+# unfortunately this method did not work for our required simulation
+# I suspect that assuming skeleton are stiff springs does not really fit here
 
 
 dt = 0.01

@@ -1,6 +1,8 @@
 import autograd.numpy as np
 from typing import Callable
 import scipy.optimize as opt
+# unfortunately this method did not work for our required simulation
+# I suspect that assuming skeleton are stiff springs does not really fit here
 
 
 gravity = np.array([0., -9.8, 0.])

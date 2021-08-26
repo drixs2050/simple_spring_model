@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import Optional
 import autograd.numpy as np
-import numpy
 import scipy.optimize as sci_opt
 import matplotlib.pyplot as plt
-
+# The working one, the basic idea is the same but this time we minimize
+# potential energy with respect to angel between skeletons so the skeleton length is fixed
 
 
 def v_spring_angle(b: float, c: float, theta: float, l0: float, stiffness: float):
