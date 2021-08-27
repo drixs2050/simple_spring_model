@@ -10,7 +10,7 @@ def my_MSEloss(a, b):
 
 
 def train_pos(posModel, t_tensor, pos_tensor, num_epoch, loss_function=my_MSEloss):
-	optimizer = optim.Adam(posModel.parameters(), lr=0.0001)
+	optimizer = optim.Adam(posModel.parameters(), lr=0.00002)
 	best_loss = float('inf')
 	best_weights = copy.deepcopy(posModel.state_dict())
 	for epoch in range(num_epoch):
@@ -28,7 +28,7 @@ def train_pos(posModel, t_tensor, pos_tensor, num_epoch, loss_function=my_MSElos
 
 
 def train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch, loss_function=my_MSEloss):
-	optimizer = optim.Adam(angModel.parameters(), lr=0.0001)
+	optimizer = optim.Adam(angModel.parameters(), lr=0.00002)
 	best_loss = float('inf')
 	best_weights = copy.deepcopy(angModel.state_dict())
 	for epoch in range(num_epoch):
@@ -50,15 +50,15 @@ if __name__ == "__main__":
 	ang_vels_data = torch.tensor(pd.read_csv('dataset/ang_stretch.csv', header=None).values)
 
 	torch.manual_seed(42)
-	device = torch.device('cuda:1')
-	torch.cuda.device(1)
+	device = torch.device('cuda:0')
+	torch.cuda.device(0)
 	print(torch.cuda.is_available())
 	print(torch.cuda.current_device())
-	print(torch.cuda.get_device_name(1))
+	print(torch.cuda.get_device_name(0))
 	t_tensor = pos_data[:, 0].reshape(len(pos_data), 1).to(device).float()
 	pos_tensor = pos_data[:, 1:].to(device).float()
 	ang_vels_tensor = ang_vels_data[:, 1:].to(device).float()
-	num_epoch = 101
+	num_epoch = 1000000
 	posModel = TrajModNetwork(pos_tensor.shape[1]).to(device)
 	angModel = AngleTrajNet(ang_vels_tensor.shape[1]).to(device)
 	train_pos(posModel, t_tensor, pos_tensor, num_epoch)
