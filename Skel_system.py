@@ -209,7 +209,7 @@ if __name__ == "__main__":
 	# snake.set_all_pos()
 	start_pos = np.array(snake.get_all_pos())
 	start_pos = start_pos.reshape(start_pos.size, )
-	visualize(start_pos, snake.t, write=True)
+	visualize(start_pos, snake.t, write=True)
 	t.append([snake.t])
 	pos.append(start_pos)
 	ang_vels.append(ang_vel.copy())
@@ -217,11 +217,11 @@ if __name__ == "__main__":
 	while diff > 1e-4:
 		new_ang_vel = snake.update()
 		diff = np.linalg.norm(new_ang_vel-ang_vel)
-		new_pos = np.array(snake.get_all_pos())
+		snake.set_all_pos()
+                new_pos = np.array(snake.get_all_pos())
 		new_pos = new_pos.reshape(start_pos.size, )
-		if round(snake.t * 100) % 10 == 0:
-			snake.set_all_pos()
-			visualize(new_pos, snake.t, write=True)
+		#if round(snake.t * 100) % 10 == 0:
+		#	visualize(new_pos, snake.t, write=True)
 		t.append([snake.t])
 		pos.append(new_pos)
 		ang_vels.append(new_ang_vel.copy())
