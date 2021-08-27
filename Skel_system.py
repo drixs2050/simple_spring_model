@@ -214,21 +214,24 @@ if __name__ == "__main__":
 	pos.append(start_pos)
 	ang_vels.append(ang_vel.copy())
 
-	while diff > 1e-4:
-		new_ang_vel = snake.update()
+	while diff > 1e-8:
+		new_ang_vel = np.array(snake.update())
 		diff = np.linalg.norm(new_ang_vel-ang_vel)
 		snake.set_all_pos()
+		ang_vel = new_ang_vel
 		new_pos = np.array(snake.get_all_pos())
 		new_pos = new_pos.reshape(start_pos.size,)
-		#if round(snake.t * 100) % 10 == 0:
-		#	visualize(new_pos, snake.t, write=True)
+		if round(snake.t * 100) % 100 == 0:
+			print(diff)
+			# visualize(new_pos, snake.t, write=True)
 		t.append([snake.t])
-		pos.append(new_pos)
+		pos.append(new_pos.copy())
 		ang_vels.append(new_ang_vel.copy())
-		print((snake.t, new_ang_vel))
-			# print(new_pos)
-		t_array = np.array(t)
-		pos_array = np.array(pos)
-		ang_vels_array = np.array(ang_vels)
-		np.savetxt("dataset/pos.csv", np.hstack((t_array, pos_array)), delimiter=",")
+
+	t_array = np.array(t)
+	pos_array = np.array(pos)
+	ang_vels_array = np.array(ang_vels)
+
+	np.savetxt("dataset/pos_shrunk.csv", np.hstack((t_array, pos_array)), delimiter=",")
+	np.savetxt("dataset/ang_shrunk.csv", np.hstack((t_array, ang_vels_array)), delimiter=",")
 
