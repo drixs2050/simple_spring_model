@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	num_epoch = 1000000
 	posModel = TrajModNetwork(pos_tensor.shape[1]).to(device)
 	angModel = AngleTrajNet(ang_vels_tensor.shape[1]).to(device)
-	train_pos(posModel, t_tensor, pos_tensor, num_epoch)
-	train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch)
-	# posModel.load_state_dict(torch.load("weights/pos_stretch_weights.pth"))
-	# angModel.load_state_dict(torch.load("weights/ang_stretch_weights.pth"))
+	# train_pos(posModel, t_tensor, pos_tensor, num_epoch)
+	# train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch)
+	posModel.load_state_dict(torch.load("weights/pos_stretch_weights.pth"))
+	angModel.load_state_dict(torch.load("weights/ang_stretch_weights.pth"))

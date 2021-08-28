@@ -3,6 +3,8 @@ from typing import Optional
 import autograd.numpy as np
 import scipy.optimize as sci_opt
 import matplotlib.pyplot as plt
+
+
 # The working one, the basic idea is the same but this time we minimize
 # potential energy with respect to angel between skeletons so the skeleton length is fixed
 
@@ -34,7 +36,7 @@ def visualize(mass_loc, t, write=False):
 	ax = plt.axes(projection='3d')
 	pos = mass_loc
 	if len(mass_loc.shape) < 2:
-		pos = pos.reshape((len(mass_loc)//3, 3))
+		pos = pos.reshape((len(mass_loc) // 3, 3))
 	xdata = pos[:, 0]
 	ydata = pos[:, 1]
 	zdata = pos[:, 2]
@@ -48,24 +50,46 @@ def visualize(mass_loc, t, write=False):
 	ax.view_init(azim=270, elev=0)
 	t_str = format(t, '.2f')
 	if write:
-		fig.savefig('visualize_complex/visualize_shrunk/'+t_str+'.png')
+		fig.savefig('visualize_complex/visualize_twisted/' + t_str + '.png')
 	else:
 		fig.show()
 
 
 def angleVec2(d, v):
-
 	a_1 = np.arctan2(d[1], d[0])
 	a_2 = np.arctan2(v[1], v[0])
 
 	diff = a_2 - a_1
 
 	if diff < -np.pi:
-		diff = np.pi-(abs(diff)-np.pi)
+		diff = np.pi - (abs(diff) - np.pi)
 	elif diff > np.pi:
-		diff = -np.pi+(abs(diff)-np.pi)
+		diff = -np.pi + (abs(diff) - np.pi)
 
 	return diff
+
+
+def get_pos(ang:np.ndarray, arm_len:np.ndarray, con:list, initial_arm:list):
+	root = initial_arm[0]
+	tip = initial_arm[1]
+	vector = (tip-root)/np.linalg.norm(tip-root)
+	arm_pos = initial_arm.copy()
+	for i in range(len(ang)):
+		rm = get_rotation_mat(np.deg2rad(ang[i]))
+		vector[:2] = rm @ vector[:2]
+		vector *= arm_len[i]
+		if con[i] == "root":
+			arm_pos.append(vector + root)
+			arm_pos.append(root)
+			tip = root
+			root = vector + root
+		else:
+			arm_pos.append(root)
+			arm_pos.append(vector + root)
+			tip = vector + root
+			root = root
+		vector = tip - root
+	return np.array(arm_pos)
 
 
 class SkelUnit:
@@ -174,30 +198,36 @@ if __name__ == "__main__":
 
 	# shrunk sample
 
-	pos = np.array([[0, 0, 0],
-					[np.cos(np.deg2rad(15)), 0, 0],
-					[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15)), 0],
-					[0, 0, 0],
-					[0, -np.sin(np.deg2rad(15))*2, 0],
-				    [np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15)), 0],
-					[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*3, 0],
-					[0, -np.sin(np.deg2rad(15))*2, 0],
-					[0, -np.sin(np.deg2rad(15))*4, 0],
-					[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*3, 0],
-					[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*5, 0],
-					[0, -np.sin(np.deg2rad(15))*4, 0]])
+	# pos = np.array([[0, 0, 0],
+	# 				[np.cos(np.deg2rad(15)), 0, 0],
+	# 				[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15)), 0],
+	# 				[0, 0, 0],
+	# 				[0, -np.sin(np.deg2rad(15))*2, 0],
+	# 			    [np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15)), 0],
+	# 				[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*3, 0],
+	# 				[0, -np.sin(np.deg2rad(15))*2, 0],
+	# 				[0, -np.sin(np.deg2rad(15))*4, 0],
+	# 				[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*3, 0],
+	# 				[np.cos(np.deg2rad(15)), -np.sin(np.deg2rad(15))*5, 0],
+	# 				[0, -np.sin(np.deg2rad(15))*4, 0]])
+
+	init_angles = np.array([40, -70, 40, -70, 40])
+	arm_len = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
 	connections = ["root", "root", "root", "root", "root"]
+	fixed_arm = [np.array([np.cos(np.deg2rad(15)), 0.0, 0.0]),
+				 np.array([0.0, np. sin(np.deg2rad(15)), 0.0])]
+	pos = get_pos(init_angles, arm_len, connections, fixed_arm)
 	l0 = np.array([0.5, 1.0, 1.0, 1.0, 1.0, 1.0])
 	stiffness = np.array([5.0, 5.0, 5.0, 5.0, 5.0, 5.0])
 	ang_vel = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
 	i = len(pos) - 1
-	curr_skel = SkelUnit(pos[i-1], pos[i], l0[len(l0) - 1], stiffness[len(stiffness) - 1])
+	curr_skel = SkelUnit(pos[i - 1], pos[i], l0[len(l0) - 1], stiffness[len(stiffness) - 1])
 	i -= 2
 	while i > 0:
-		new_skel = SkelUnit(pos[i-1], pos[i], l0[(i-1)//2], stiffness[(i-1)//2])
+		new_skel = SkelUnit(pos[i - 1], pos[i], l0[(i - 1) // 2], stiffness[(i - 1) // 2])
 		new_skel.child = curr_skel
-		new_skel.con = connections[(i-1)//2]
+		new_skel.con = connections[(i - 1) // 2]
 		curr_skel = new_skel
 		i -= 2
 	t = []
@@ -209,21 +239,21 @@ if __name__ == "__main__":
 	# snake.set_all_pos()
 	start_pos = np.array(snake.get_all_pos())
 	start_pos = start_pos.reshape(start_pos.size, )
-	# visualize(start_pos, snake.t, write=True)
+	visualize(start_pos, snake.t, write=True)
 	t.append([snake.t])
 	pos.append(start_pos)
 	ang_vels.append(ang_vel.copy())
 
 	while diff > 1e-8:
 		new_ang_vel = np.array(snake.update())
-		diff = np.linalg.norm(new_ang_vel-ang_vel)
+		diff = np.linalg.norm(new_ang_vel - ang_vel)
 		snake.set_all_pos()
 		ang_vel = new_ang_vel
 		new_pos = np.array(snake.get_all_pos())
-		new_pos = new_pos.reshape(start_pos.size,)
-		if round(snake.t * 100) % 100 == 0:
+		new_pos = new_pos.reshape(start_pos.size, )
+		if round(snake.t * 100) % 10 == 0:
 			print(diff)
-			# visualize(new_pos, snake.t, write=True)
+			visualize(new_pos, snake.t, write=True)
 		t.append([snake.t])
 		pos.append(new_pos.copy())
 		ang_vels.append(new_ang_vel.copy())
@@ -232,6 +262,8 @@ if __name__ == "__main__":
 	pos_array = np.array(pos)
 	ang_vels_array = np.array(ang_vels)
 
-	np.savetxt("dataset/pos_shrunk.csv", np.hstack((t_array, pos_array)), delimiter=",")
-	np.savetxt("dataset/ang_shrunk.csv", np.hstack((t_array, ang_vels_array)), delimiter=",")
+	np.savetxt("dataset/pos_twisted.csv", np.hstack((t_array, pos_array)), delimiter=",")
+	np.savetxt("dataset/ang_twisted.csv", np.hstack((t_array, ang_vels_array)), delimiter=",")
+
+
 
