@@ -24,7 +24,7 @@ def train_pos(posModel, t_tensor, pos_tensor, num_epoch, loss_function=my_MSElos
 		if loss < best_loss:
 			best_loss = loss
 			best_weights = copy.deepcopy(posModel.state_dict())
-	torch.save(best_weights, "weights/" + "pos_stretch_weights.pth")
+	torch.save(best_weights, "weights/" + "pos_twisted_weights.pth")
 
 
 def train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch, loss_function=my_MSEloss):
@@ -42,12 +42,12 @@ def train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch, loss_function
 		if loss < best_loss:
 			best_loss = loss
 			best_weights = copy.deepcopy(angModel.state_dict())
-	torch.save(best_weights, "weights/"+"ang_stretch_weights.pth")
+	torch.save(best_weights, "weights/"+"ang_twisted_weights.pth")
 
 
 if __name__ == "__main__":
-	pos_data = torch.tensor(pd.read_csv('dataset/pos_stretch.csv', header=None).values)
-	ang_vels_data = torch.tensor(pd.read_csv('dataset/ang_stretch.csv', header=None).values)
+	pos_data = torch.tensor(pd.read_csv('dataset/pos_twisted.csv', header=None).values)
+	ang_vels_data = torch.tensor(pd.read_csv('dataset/ang_twisted.csv', header=None).values)
 
 	torch.manual_seed(42)
 	device = torch.device('cuda:0')
@@ -61,7 +61,7 @@ if __name__ == "__main__":
 	num_epoch = 1000000
 	posModel = TrajModNetwork(pos_tensor.shape[1]).to(device)
 	angModel = AngleTrajNet(ang_vels_tensor.shape[1]).to(device)
-	# train_pos(posModel, t_tensor, pos_tensor, num_epoch)
-	# train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch)
-	posModel.load_state_dict(torch.load("weights/pos_stretch_weights.pth"))
-	angModel.load_state_dict(torch.load("weights/ang_stretch_weights.pth"))
+	train_pos(posModel, t_tensor, pos_tensor, num_epoch)
+	train_ang_vels(angModel, t_tensor, ang_vels_tensor, num_epoch)
+	#posModel.load_state_dict(torch.load("weights/pos_twisted_weights.pth"))
+	#angModel.load_state_dict(torch.load("weights/ang_twisted_weights.pth"))
